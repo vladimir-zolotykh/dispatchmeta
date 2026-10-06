@@ -4,6 +4,7 @@
 from typing import MutableMapping
 from types import MethodType
 from inspect import signature, _empty
+from functools import wraps
 
 
 class Method:
@@ -47,15 +48,37 @@ class MultiMeta(type):
         return MultiDict()
 
 
+def show_types(func):
+    sig = signature(func)
+    pname = (
+        func.__name__
+        + "-"
+        + "-".join(
+            p.annotation.__name__ for n, p in sig.parameters.items() if n != "self"
+        )
+    )
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print(f"{pname}{args[1:]}")
+        res = func(*args, **kwargs)
+        return res
+
+    return wrapper
+
+
 class Box(metaclass=MultiMeta):
+    @show_types
     def add(self, x: int, y: int) -> int:
         print("integer add")
         return x + y
 
+    @show_types
     def add(self, x: float, y: float = 7.6) -> float:  # noqa: F811
         print("float add")
         return x + y
 
+    @show_types
     def add(self, x: str, y: str) -> str:  # noqa: F811
         print("string add")
         return x + y
