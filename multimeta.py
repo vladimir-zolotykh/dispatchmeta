@@ -62,9 +62,7 @@ def show_types(func):
             if parm.default is not _empty and name not in bound.arguments:
                 typqual += f"[{parm.default}]"
             typ.append(typqual)
-        sargs = "-".join(typ)
-        pname = f"{func.__name__}-{sargs}"
-        print(f"{pname}{args[1:]}")
+        print("{}-{}{}".format(func.__name__, "-".join(typ), args[1:]))
         res = func(*args, **kwargs)
         return res
 
