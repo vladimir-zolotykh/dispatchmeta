@@ -74,23 +74,20 @@ def show_types(func):
 class Box(metaclass=MultiMeta):
     @show_types
     def add(self, x: int, y: int) -> int:
-        print("integer add")
         return x + y
 
     @show_types
     def add(self, x: float, y: float = 7.6) -> float:  # noqa: F811
-        print("float add")
         return x + y
 
     @show_types
     def add(self, x: str, y: str) -> str:  # noqa: F811
-        print("string add")
         return x + y
 
 
 if __name__ == "__main__":
     box = Box()
-    box.add(3, 4)
-    box.add(3.3, 4.4)
-    box.add(3.3)
-    box.add("3.3", "4.4")
+    print(box.add(3, 4))
+    print(box.add(3.3, 4.4))
+    print(box.add(3.3))
+    print(box.add("3.3", "4.4"))
