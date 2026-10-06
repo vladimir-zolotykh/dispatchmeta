@@ -58,10 +58,10 @@ def show_types(func):
         for name, parm in sig.parameters.items():
             if name == "self":
                 continue
+            typqual = parm.annotation.__name__
             if parm.default is not _empty and name not in bound.arguments:
-                typ.append(parm.annotation.__name__ + f"[{parm.default}]")
-            else:
-                typ.append(parm.annotation.__name__)
+                typqual += f"[{parm.default}]"
+            typ.append(typqual)
         sargs = "-".join(typ)
         pname = f"{func.__name__}-{sargs}"
         print(f"{pname}{args[1:]}")
