@@ -54,15 +54,15 @@ def show_types(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         bound = sig.bind(*args, **kwargs)
-        args1 = []
+        typ = []
         for name, parm in sig.parameters.items():
             if name == "self":
                 continue
             if parm.default is not _empty and name not in bound.arguments:
-                args1.append(parm.annotation.__name__ + f"[{parm.default}]")
+                typ.append(parm.annotation.__name__ + f"[{parm.default}]")
             else:
-                args1.append(parm.annotation.__name__)
-        sargs = "-".join(args1)
+                typ.append(parm.annotation.__name__)
+        sargs = "-".join(typ)
         pname = f"{func.__name__}-{sargs}"
         print(f"{pname}{args[1:]}")
         res = func(*args, **kwargs)
