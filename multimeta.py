@@ -50,16 +50,20 @@ class MultiMeta(type):
 
 def show_types(func):
     sig = signature(func)
-    pname = (
-        func.__name__
-        + "-"
-        + "-".join(
-            p.annotation.__name__ for n, p in sig.parameters.items() if n != "self"
-        )
-    )
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        bound = sig.bind(*args, **kwargs)
+        args1 = []
+        for name, parm in sig.parameters.items():
+            if name == "self":
+                continue
+            if parm.default is not _empty and name not in bound.arguments:
+                args1.append(parm.annotation.__name__ + f"[{parm.default}]")
+            else:
+                args1.append(parm.annotation.__name__)
+        sargs = "-".join(args1)
+        pname = f"{func.__name__}-{sargs}"
         print(f"{pname}{args[1:]}")
         res = func(*args, **kwargs)
         return res
