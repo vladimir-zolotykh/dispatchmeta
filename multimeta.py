@@ -15,10 +15,10 @@ class Method:
         sig = signature(func)
         typ = tuple()
         for name, parm in sig.parameters.items():
-            if parm.annotation is _empty:
-                raise TypeError("{}: Missed annotation")
             if name == "self":
                 continue
+            if parm.annotation is _empty:
+                raise TypeError("{}: Missed annotation")
             if parm.default is not _empty:
                 self.methods[typ] = func
             typ = typ + (parm.annotation,)
