@@ -74,11 +74,68 @@ def iter_tokens(sexpr: str) -> Iterator[Token]:
     masterpat = "|".join(Node._masterpat)
     for match in re.finditer(masterpat, sexpr):
         if match.lastgroup != Ws.__name__:
-            yield Token(match.lastgroup, match.group(1))
+            yield Token(globals()[match.lastgroup], match.group(1))
 
 
-if __name__ == "__main__":
+class Parser:
+    def __init__(self):
+        self.tokens = None
+        self.tok = None
+
+    def parse(self, sexpr: str = "") -> Node:
+        self.tokens = iter_tokens(sexpr)
+        self._advance()
+        return self.expr()
+
+    def expr(self) -> Node:
+        res = self.term()
+        while self.tok and (op := self.tok.sym) in (Plus, Minus):
+            self._consume()
+            res = op(res, self.term())
+        return res
+
+    def term(self) -> Node:
+        res = self.factor()
+        while self.tok and (op := self.tok.sym) in (Mul, Div):
+            self._consume()
+            res = op(res, self.factor())
+        return res
+
+    def factor(self) -> Node:
+        if self.tok.sym is Lparen:
+            self._consume()
+            res = self.expr()
+            self._expect(Rparen)
+        else:
+            res = Num(self.tok.val)
+            self._consume()
+        return res
+
+    def _advance(self) -> Token:
+        self.tok = next(self.tokens, None)
+        return self.tok
+
+    def _expect(self, expected) -> None:
+        if self.tok is not expected:
+            raise SyntaxError(f"Expected {expected!r}, got {self.tok!r}")
+        self._consume()
+
+    def _consume(self) -> None:
+        next(self.tokens, None)
+
+
+def test_tokens():
     # print("|".join(Node._masterpat))
     sexpr = "2 + (3 * 4) + 5"
     for tok in iter_tokens(sexpr):
         print(tok)
+
+
+def test_parser():
+    sexpr = "2 + (3 * 4) + 5"
+    n = Parser().parse(sexpr)
+    print(n)
+
+
+if __name__ == "__main__":
+    test_parser
