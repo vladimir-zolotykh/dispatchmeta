@@ -153,6 +153,8 @@ class Parser:
     "sexpr, val",
     [
         ("2 + (3 * 4) + 5", 19),
+        ("2 + (3 * 4) - 5", 9),
+        ("13 / 2", 6.5),
     ],
 )
 def test_eval(sexpr, val):
