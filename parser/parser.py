@@ -149,6 +149,17 @@ class Parser:
         self.tok = next(self.tokens, None)
 
 
+@pytest.mark.parametrize(
+    "sexpr, val",
+    [
+        ("2 + (3 * 4) + 5", 19),
+    ],
+)
+def test_eval(sexpr, val):
+    n = Parser().parse(sexpr)
+    assert n.eval() == val
+
+
 def test_parser():
     sexpr = "2 + (3 * 4) + 5"
     n = Parser().parse(sexpr)
