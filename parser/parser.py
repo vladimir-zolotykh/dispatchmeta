@@ -26,6 +26,9 @@ class Num(Node):
     def __repr__(self):
         return f"Num({self.val})"
 
+    def eval(self) -> float:
+        return float(self.val)
+
 
 class BinOp(Node):
     def __init__(self, left: Node, right: Node) -> Node:
@@ -34,6 +37,9 @@ class BinOp(Node):
 
     def __repr__(self):
         return f"{type(self).__name__}({repr(self.left)}, {repr(self.right)})"
+
+    def eval(self) -> float:
+        return self.op(self.left.eval(), self.right.eval())
 
 
 class Plus(BinOp):
@@ -147,6 +153,7 @@ def test_parser():
     sexpr = "2 + (3 * 4) + 5"
     n = Parser().parse(sexpr)
     print(n)
+    print(n.eval())
 
 
 if __name__ == "__main__":
