@@ -104,6 +104,7 @@ class Parser:
         while self.tok and (op := self.tok.sym) in (Plus, Minus):
             self._consume()
             res = op(res, self.term())
+        assert isinstance(res, Node), "expr"
         return res
 
     def term(self) -> Node:
@@ -111,6 +112,7 @@ class Parser:
         while self.tok and (op := self.tok.sym) in (Mul, Div):
             self._consume()
             res = op(res, self.factor())
+        assert isinstance(res, Node), "term"
         return res
 
     def factor(self) -> Node:
@@ -121,19 +123,21 @@ class Parser:
         else:
             res = Num(float(self.tok.val))
             self._consume()
+        assert isinstance(res, Node), "factor"
         return res
 
     def _advance(self) -> Token:
         self.tok = next(self.tokens, None)
         return self.tok
 
-    def _expect(self, expected) -> None:
-        if self.tok is not expected:
+    def _expect(self, expected: type[Node]) -> None:
+        assert issubclass(self.tok.sym, Node), "_expect"
+        if self.tok.sym is not expected:
             raise SyntaxError(f"Expected {expected!r}, got {self.tok!r}")
         self._consume()
 
     def _consume(self) -> None:
-        next(self.tokens, None)
+        self.tok = next(self.tokens, None)
 
 
 def test_parser():
