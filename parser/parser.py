@@ -20,7 +20,11 @@ class Num(Node):
     pat = r"\d+"
 
     def __init__(self, val: float):
-        pass
+        assert isinstance(val, float)
+        self.val = val
+
+    def __repr__(self):
+        return f"Num({self.val})"
 
 
 class BinOp(Node):
@@ -67,7 +71,7 @@ class Token:
         self.val = val
 
     def __repr__(self):
-        return "{}({})".format(self.sym, self.val if self.val else "")
+        return "{}({})".format(self.sym.__name__, self.val if self.val else "")
 
 
 def iter_tokens(sexpr: str) -> Iterator[Token]:
@@ -76,6 +80,13 @@ def iter_tokens(sexpr: str) -> Iterator[Token]:
         cls = globals()[match.lastgroup]
         if cls is not Ws:
             yield Token(cls, match.group(1))
+
+
+def test_tokens():
+    # print("|".join(Node._masterpat))
+    sexpr = "2 + (3 * 4) + 5"
+    for tok in iter_tokens(sexpr):
+        print(tok)
 
 
 class Parser:
@@ -108,7 +119,7 @@ class Parser:
             res = self.expr()
             self._expect(Rparen)
         else:
-            res = Num(self.tok.val)
+            res = Num(float(self.tok.val))
             self._consume()
         return res
 
@@ -125,13 +136,6 @@ class Parser:
         next(self.tokens, None)
 
 
-def test_tokens():
-    # print("|".join(Node._masterpat))
-    sexpr = "2 + (3 * 4) + 5"
-    for tok in iter_tokens(sexpr):
-        print(tok)
-
-
 def test_parser():
     sexpr = "2 + (3 * 4) + 5"
     n = Parser().parse(sexpr)
@@ -139,4 +143,5 @@ def test_parser():
 
 
 if __name__ == "__main__":
-    test_parser
+    # test_tokens()
+    test_parser()
