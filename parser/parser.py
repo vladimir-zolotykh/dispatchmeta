@@ -32,6 +32,9 @@ class BinOp(Node):
         self.left = left
         self.right = right
 
+    def __repr__(self):
+        return f"{type(self).__name__}({repr(self.left)}, {repr(self.right)})"
+
 
 class Plus(BinOp):
     op = operator.add
