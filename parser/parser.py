@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
-from typing import Iterator, Any
+from typing import Iterator, Any, Self
 import operator
 import re
 import pytest
@@ -9,6 +9,12 @@ import pytest
 
 class Node:
     _masterpat: list[str] = []
+
+    @classmethod
+    def init_as_token(cls, val: Any) -> Self:
+        obj = cls.__new__(cls)
+        obj.val = val
+        return obj
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -18,6 +24,10 @@ class Node:
 
 class Num(Node):
     pat = r"\d+"
+
+    def update(self, val: float) -> Self:
+        self.val = val
+        return self
 
     def __init__(self, val: float):
         assert isinstance(val, float)
@@ -32,8 +42,15 @@ class Num(Node):
 
 class BinOp(Node):
     def __init__(self, left: Node, right: Node) -> Node:
+        assert isinstance(left, Node) and isinstance(right, Node)
         self.left = left
         self.right = right
+
+    def update(self, left: Node, right: Node) -> Self:
+        assert isinstance(left, Node) and isinstance(right, Node)
+        self.left = left
+        self.right = right
+        return self
 
     def __repr__(self):
         return f"{type(self).__name__}({repr(self.left)}, {repr(self.right)})"
@@ -88,7 +105,8 @@ def iter_tokens(sexpr: str) -> Iterator[Token]:
     for match in re.finditer(masterpat, sexpr):
         cls: type[Node] = globals()[match.lastgroup]
         if cls is not Ws:
-            yield Token(cls, match.group(1))
+            # yield Token(cls, match.group(1))
+            yield cls.init_as_token(match.group(1))
 
 
 def test_tokens():
@@ -110,27 +128,28 @@ class Parser:
 
     def expr(self) -> Node:
         res = self.term()
-        while self.tok and (op := self.tok.nodetype) in (Plus, Minus):
+        while (tok := self.tok) and type(tok) in (Plus, Minus):
             self._consume()
-            res = op(res, self.term())
+            res = tok.update(res, self.term())
         assert isinstance(res, Node), "expr"
         return res
 
     def term(self) -> Node:
         res = self.factor()
-        while self.tok and (op := self.tok.nodetype) in (Mul, Div):
+        while (tok := self.tok) and type(tok) in (Mul, Div):
             self._consume()
-            res = op(res, self.factor())
+            res = tok.update(res, self.factor())
         assert isinstance(res, Node), "term"
         return res
 
     def factor(self) -> Node:
-        if self.tok.nodetype is Lparen:
+        if self.tok is Lparen:
             self._consume()
             res = self.expr()
             self._expect(Rparen)
         else:
-            res = Num(float(self.tok.val))
+            # res = Num(float(self.tok.val))
+            res = self.tok
             self._consume()
         assert isinstance(res, Node), "factor"
         return res
