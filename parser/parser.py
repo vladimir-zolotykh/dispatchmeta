@@ -75,12 +75,12 @@ class Ws(Node):
 
 
 class Token:
-    def __init__(self, sym: str, val: Any = None):
-        self.sym = sym
+    def __init__(self, nodetype: type[Node], val: Any = None):
+        self.nodetype = nodetype
         self.val = val
 
     def __repr__(self):
-        return "{}({})".format(self.sym.__name__, self.val if self.val else "")
+        return "{}({})".format(self.nodetype.__name__, self.val if self.val else "")
 
 
 def iter_tokens(sexpr: str) -> Iterator[Token]:
@@ -110,7 +110,7 @@ class Parser:
 
     def expr(self) -> Node:
         res = self.term()
-        while self.tok and (op := self.tok.sym) in (Plus, Minus):
+        while self.tok and (op := self.tok.nodetype) in (Plus, Minus):
             self._consume()
             res = op(res, self.term())
         assert isinstance(res, Node), "expr"
@@ -118,14 +118,14 @@ class Parser:
 
     def term(self) -> Node:
         res = self.factor()
-        while self.tok and (op := self.tok.sym) in (Mul, Div):
+        while self.tok and (op := self.tok.nodetype) in (Mul, Div):
             self._consume()
             res = op(res, self.factor())
         assert isinstance(res, Node), "term"
         return res
 
     def factor(self) -> Node:
-        if self.tok.sym is Lparen:
+        if self.tok.nodetype is Lparen:
             self._consume()
             res = self.expr()
             self._expect(Rparen)
@@ -140,8 +140,8 @@ class Parser:
         return self.tok
 
     def _expect(self, expected: type[Node]) -> None:
-        assert issubclass(self.tok.sym, Node), "_expect"
-        if self.tok.sym is not expected:
+        assert issubclass(self.tok.nodetype, Node), "_expect"
+        if self.tok.nodetype is not expected:
             raise SyntaxError(f"Expected {expected!r}, got {self.tok!r}")
         self._consume()
 
