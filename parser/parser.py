@@ -86,7 +86,7 @@ class Token:
 def iter_tokens(sexpr: str) -> Iterator[Token]:
     masterpat = "|".join(Node._masterpat)
     for match in re.finditer(masterpat, sexpr):
-        cls = globals()[match.lastgroup]
+        cls: type[Node] = globals()[match.lastgroup]
         if cls is not Ws:
             yield Token(cls, match.group(1))
 
