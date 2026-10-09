@@ -54,3 +54,31 @@ def fac_tail(n: int, res: int = 1) -> int:
 )
 def test_fac_tail(n, res):
     assert fac_tail(n) == res
+
+
+@pytest.mark.parametrize(
+    "n, res",
+    [
+        (0, 1),
+        (1, 1),
+        (2, 2),
+        (3, 6),
+        (4, 24),
+        (5, 120),
+        (6, 720),
+        (7, 5040),
+        (8, 40320),
+        (9, 362880),
+    ],
+)
+def test_fac_iter(n, res):
+    assert fac_iter(n) == res
+
+
+def fac_iter(n):
+    fac = 1
+    i = 1
+    while i <= n:
+        fac *= i
+        i += 1
+    return fac
