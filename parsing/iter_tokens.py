@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
 from typing import Iterator
+import operator
 import re
 
 
@@ -63,3 +64,51 @@ Token('NUM', '5')
 """
     )
     # fmt: on
+
+
+class Node:
+    pass
+
+
+class Num(Node):
+    def __init__(self, val: float):
+        self.val = val
+
+    def __repr__(self):
+        return f"Num({self.val})"
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.val == other.val
+
+
+class BinOp(Node):
+    def __init__(self, left: Node, right: Node):
+        self.left = left
+        self.right = right
+
+    def __repr__(self):
+        # tuple(repr(v) for v in d.values())
+        return f"{type(self.__name__)}({repr(self.left)}, {repr(self.right)})"
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.__dict__ == other.__dict__
+
+
+class Plus(BinOp):
+    _op = operator.add
+
+
+class Minus(BinOp):
+    _op = operator.sub
+
+
+class Mul(BinOp):
+    _op = operator.mul
+
+
+class Div(BinOp):
+    _op = operator.truediv
