@@ -123,23 +123,21 @@ class Parser:
         res = self.term()
         while self.tok and (op := self.tok.val) in ("+", "-"):
             self._consume()
-            right = self.term()
-            res = Plus(res, right) if op == "+" else Minus(res, right)
+            res = {"+": Plus, "-": Minus}[op](res, self.term())
         return res
 
     def term(self) -> Node:
         res = self.factor()
         while self.tok and (op := self.tok.val) in ("*", "/"):
             self._consume()
-            right = self.factor()
-            res = Mul(res, right) if op == "*" else Div(res, right)
+            res = {"*": Mul, "/": Div}[op](res, self.factor())
         return res
 
     def factor(self) -> Node:
         if self.tok.val == "(":
             self._consume()
             res = self.expr()
-            self._consume()
+            self._expect("RPAREN")
         else:
             res = Num(float(self.tok.val))
             self._consume()
@@ -153,7 +151,7 @@ class Parser:
         self.tok = next(self.tokens, None)
 
     def _expect(self, expected) -> None:
-        if self.tok.name != expected.name:
+        if self.tok.name != expected:
             raise SyntaxError(f"Expected {expected}, got {self.tok.name}")
         self._consume()
 
