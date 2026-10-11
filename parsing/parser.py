@@ -41,11 +41,6 @@ def iter_tokens(sexpr: str) -> Iterator[Token]:
             yield Token(name, match.group(0))
 
 
-if __name__ == "__main__":
-    for tok in iter_tokens("2 + (3 * 4) + 5"):
-        print(repr(tok))
-
-
 def test_iter_tokens(capsys):
     for tok in iter_tokens("2 + (3 * 4) + 5"):
         print(repr(tok))
@@ -90,7 +85,7 @@ class BinOp(Node):
 
     def __repr__(self):
         # tuple(repr(v) for v in d.values())
-        return f"{type(self.__name__)}({repr(self.left)}, {repr(self.right)})"
+        return f"{type(self).__name__}({repr(self.left)}, {repr(self.right)})"
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
