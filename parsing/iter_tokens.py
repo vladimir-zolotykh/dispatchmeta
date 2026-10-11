@@ -35,19 +35,19 @@ TOKENS = {
 masterpat = "|".join(TOKENS.values())
 
 
-def iter_token(sexpr: str) -> Iterator[Token]:
+def iter_tokens(sexpr: str) -> Iterator[Token]:
     for match in re.finditer(masterpat, sexpr):
         if (name := match.lastgroup) != "WS":
             yield Token(name, match.group(0))
 
 
 if __name__ == "__main__":
-    for tok in iter_token("2 + (3 * 4) + 5"):
+    for tok in iter_tokens("2 + (3 * 4) + 5"):
         print(repr(tok))
 
 
 def test_iter_tokens(capsys):
-    for tok in iter_token("2 + (3 * 4) + 5"):
+    for tok in iter_tokens("2 + (3 * 4) + 5"):
         print(repr(tok))
     # fmt: off
     assert (
@@ -112,3 +112,57 @@ class Mul(BinOp):
 
 class Div(BinOp):
     _op = operator.truediv
+
+
+class Parser:
+    def __init__(self):
+        self.tokens = None
+        self.tok = None
+
+    def parse(self, sexpr: str) -> Node:
+        self.tokens = iter_tokens(sexpr)
+        self._advance()
+        return self.expr()
+
+    def expr(self) -> Node:
+        res = self.term()
+        while self.tok and (op := self.tok.val) in ("+", "-"):
+            self._consume()
+            right = self.term()
+            res = Plus(res, right) if op == "+" else Minus(res, right)
+        return res
+
+    def term(self) -> Node:
+        res = self.factor()
+        while self.tok and (op := self.tok.val) in ("*", "/"):
+            self._consume()
+            right = self.factor()
+            res = Mul(res, right) if op == "*" else Div(res, right)
+        return res
+
+    def factor(self) -> Node:
+        if self.tok.val == "(":
+            self._consume()
+            res = self.expr()
+            self._consume()
+        else:
+            res = Num(float(self.tok.val))
+            self._consume()
+        return res
+
+    def _advance(self) -> Token:
+        self.tok = next(self.tokens, None)
+        return self.tok
+
+    def _consume(self) -> None:
+        self.tok = next(self.tokens, None)
+
+    def _expect(self, expected) -> None:
+        if self.tok.name != expected.name:
+            raise SyntaxError(f"Expected {expected}, got {self.tok.name}")
+        self._consume()
+
+
+if __name__ == "__main__":
+    n: Node = Parser().parse("2 + (3 * 4) + 5")
+    print(n)
