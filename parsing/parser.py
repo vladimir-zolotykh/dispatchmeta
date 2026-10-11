@@ -11,6 +11,14 @@ class Token:
         self.name = name
         self.val = val
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Token):
+            return self.__dict__ == other.__dict__
+        elif isinstance(other, str):
+            return self.name == other or self.val == other
+        else:
+            return NotImplemented
+
     def __str__(self):
         return self.val
 
@@ -121,23 +129,23 @@ class Parser:
 
     def expr(self) -> Node:
         res = self.term()
-        while self.tok and (op := self.tok.val) in ("+", "-"):
+        while self.tok and (tok := self.tok) in ("+", "-"):
             self._consume()
-            res = {"+": Plus, "-": Minus}[op](res, self.term())
+            res = (Plus if tok == "+" else Minus)(res, self.term())
         return res
 
     def term(self) -> Node:
         res = self.factor()
-        while self.tok and (op := self.tok.val) in ("*", "/"):
+        while self.tok and (tok := self.tok) in ("*", "/"):
             self._consume()
-            res = {"*": Mul, "/": Div}[op](res, self.factor())
+            res = (Mul if tok == "*" else Div)(res, self.term())
         return res
 
     def factor(self) -> Node:
-        if self.tok.val == "(":
+        if self.tok == "(":
             self._consume()
             res = self.expr()
-            self._expect("RPAREN")
+            self._expect(")")
         else:
             res = Num(float(self.tok.val))
             self._consume()
@@ -151,7 +159,7 @@ class Parser:
         self.tok = next(self.tokens, None)
 
     def _expect(self, expected) -> None:
-        if self.tok.name != expected:
+        if self.tok != expected:
             raise SyntaxError(f"Expected {expected}, got {self.tok.name}")
         self._consume()
 
