@@ -9,11 +9,17 @@ import math
 class lazyproperty:
     def __init__(self, func: Callable):
         self._func = func
+        self._var = f"_var_{func.__name__}"
 
     def __get__(self, instance, owner=None):
         if instance is None:
             return self
-        return MethodType(self._func, instance)
+        if not hasattr(instance, self._var):
+            val = MethodType(self._func, instance)()
+            setattr(instance, self._var, val)
+        else:
+            val = getattr(instance, self._var)
+        return val
 
 
 class Circle:
@@ -33,8 +39,10 @@ class Circle:
 
 def test_circle():
     c = Circle(10.2)
-    print("{:.2f}".format(c.area()))
-    print("{:.2f}".format(c.circumference()))
+    print("{:.2f}".format(c.area))
+    print("{:.2f}".format(c.circumference))
+    print("{:.2f}".format(c.area))
+    print("{:.2f}".format(c.circumference))
 
 
 if __name__ == "__main__":
