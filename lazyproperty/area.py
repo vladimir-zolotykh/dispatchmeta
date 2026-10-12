@@ -11,6 +11,8 @@ class lazyproperty:
         self._func = func
 
     def __get__(self, instance, owner=None):
+        if instance is None:
+            return self
         return MethodType(self._func, instance)
 
 
@@ -20,7 +22,7 @@ class Circle:
 
     @lazyproperty
     def area(self):
-        print("calculating circumference")
+        print("calculating area")
         return math.pi * self.radius**2
 
     @lazyproperty
