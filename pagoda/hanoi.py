@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
+from typing import Literal
 from array import array
 import pytest
+from autoassert import autoassert
 
 pegs = [array("i"), array("i"), array("i")]
 
@@ -30,7 +32,10 @@ def move(src: int, dst: int):
     pegs[dst].append(pegs[src].pop())
 
 
-def solve(num_disks, src, dst, aux):
+@autoassert
+def solve(
+    num_disks: int, src: Literal[0, 1, 2], dst: Literal[0, 1, 2], aux: Literal[0, 1, 2]
+):
     if num_disks < 1:
         return
     solve(num_disks - 1, src, aux, dst)
