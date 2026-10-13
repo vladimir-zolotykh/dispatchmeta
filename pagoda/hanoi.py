@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
 from array import array
+import pytest
 
 pegs = [array("i"), array("i"), array("i")]
 
@@ -35,6 +36,23 @@ def solve(num_disks, src, dst, aux):
     solve(num_disks - 1, src, aux, dst)
     move(src, dst)
     solve(num_disks - 1, aux, dst, src)
+
+
+@pytest.mark.parametrize(
+    "num_disks, res",
+    [
+        (3, [array("i"), array("i"), array("i", [3, 2, 1])]),
+        (4, [array("i"), array("i"), array("i", [4, 3, 2, 1])]),
+        (5, [array("i"), array("i"), array("i", [5, 4, 3, 2, 1])]),
+        (6, [array("i"), array("i"), array("i", [6, 5, 4, 3, 2, 1])]),
+        (7, [array("i"), array("i"), array("i", [7, 6, 5, 4, 3, 2, 1])]),
+        (8, [array("i"), array("i"), array("i", [8, 7, 6, 5, 4, 3, 2, 1])]),
+    ],
+)
+def test_solve(num_disks, res):
+    init_pegs(num_disks)
+    solve(num_disks, 0, 2, 1)
+    assert pegs == res
 
 
 if __name__ == "__main__":
