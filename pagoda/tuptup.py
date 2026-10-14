@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
 from operator import itemgetter
+import pytest
 
 
 class TupMeta(type):
@@ -27,6 +28,8 @@ def test_person():
     bob = Person("Bob", 37, 12000)
     assert (bob.name, bob.age, bob.salary) == ("Bob", 37, 12000)
     assert str(bob) == "('Bob', 37, 12000)"
+    with pytest.raises(TypeError, match="gets exactly 3 arguments"):
+        Person("Bob", 38, 12000, "Senior Python developer")
 
 
 if __name__ == "__main__":
