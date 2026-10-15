@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
-from operator import itemgetter
 
 
 class EltMeta(type):
     def __init__(cls, clsname, bases, clsdict):
         super().__init__(clsname, bases, clsdict)
         fields = clsdict.get("_fields", [])
-        for index, name in enumerate(fields):
-            setattr(cls, name, property(itemgetter(index)))
+        for k, name in enumerate(fields):
+
+            def getk(self, x=k):
+                return self[x]
+
+            def setk(self, val, x=k):
+                self[x] = val
+
+            setattr(cls, name, property(getk, setk))
 
 
 class Elt(list, metaclass=EltMeta):
