@@ -16,8 +16,7 @@ class BunchMeta(type):
                 else:
                     setattr(self, key, defaults[key])
             if kwargs:
-                warnings.warn(f"{kwargs} weren't used")
-            pass
+                warnings.warn(f"{', '.join(list(kwargs))}: no matching slots found")
 
         def __repr__(self):
             mod = []
@@ -46,10 +45,15 @@ class Person(metaclass=BunchMeta):
     age = 37
     salary = 1200
 
+    # def __repr__(self):
+    #     pass
+
 
 def test_person():
-    p = Person()
-    print(p)
+    assert str(Person()) == "Person()"
+    assert str(Person(age=38)) == "Person(age=38)"
+    p = Person(job="Senior Java Developer")
+    p.gender = "male"
     # p = Person(age=38)
     # Person(position="Senior Pyrhon engineer")
 
