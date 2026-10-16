@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
 import warnings
+import pytest
 
 
 class BunchMeta(type):
@@ -45,18 +46,34 @@ class Person(metaclass=BunchMeta):
     age = 37
     salary = 1200
 
-    # def __repr__(self):
-    #     pass
 
-
-def test_person():
+def test_person(capsys):
     assert str(Person()) == "Person()"
     assert str(Person(age=38)) == "Person(age=38)"
-    p = Person(job="Senior Java Developer")
-    p.gender = "male"
-    # p = Person(age=38)
-    # Person(position="Senior Pyrhon engineer")
+
+
+def test_person_no_matching_slots():
+    with pytest.warns(UserWarning, match="job: no matching slots found"):
+        Person(job="Senior Java Developer")
+
+
+def test_person_no_attribute():
+    p = Person()
+    with pytest.raises(
+        AttributeError, match="'Person' object has no attribute 'gender'"
+    ):
+        p.gender = "male"
+
+
+def test_person_no_overwrite():
+    with pytest.raises(TypeError, match="__repr__: not allowed to overwrite"):
+
+        class Person(metaclass=BunchMeta):
+            age = 37
+
+            def __repr__(self):
+                pass
 
 
 if __name__ == "__main__":
-    test_person()
+    test_person_no_overwrite()
