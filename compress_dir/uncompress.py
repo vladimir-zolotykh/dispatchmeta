@@ -29,5 +29,10 @@ def test_uncompr2():
     assert copy(res) == [1, 1, 1, 0, 1, 0, 0, 0, 0, 1]
 
 
+def test_uncompr3():
+    expected = [1, 1, 1, 0, 1, 0, 0, 0, 0, 1]
+    assert uncompr([Elt([3, 1]), 0, 1, Elt([4, 0]), 1]) == expected
+
+
 if __name__ == "__main__":
     print(uncompr([Elt([3, 1]), 0, 1, Elt([4, 0]), 1]))
