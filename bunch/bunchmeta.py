@@ -28,16 +28,15 @@ class BunchMeta(type):
             args = ", ".join(f"{key}={getattr(self, key)!r}" for key in mod)
             return f"{type(self).__name__}({args})"
 
-        ns = dict(clsdict)
+        ns = dict(__slots__=[], __init__=__init__, __repr__=__repr__)
         for key, val in clsdict.items():
-            if key in ("__init__", "__repr__"):
-                raise TypeError(f"{key}: not allowed to overwrite")
-            if key not in ("__module__", "__qualname__"):
+            if key[:2] == "__" and key[-2:] == "__":
+                if key in ns:
+                    raise TypeError(f"{key}: not allowed to overwrite")
+                ns[key] = val
+            else:
+                ns["__slots__"].append(key)
                 defaults[key] = val
-                del ns[key]
-        ns["__init__"] = __init__
-        ns["__repr__"] = __repr__
-        ns["__slots__"] = defaults
         return super().__new__(mcls, clsname, bases, ns)
 
 
