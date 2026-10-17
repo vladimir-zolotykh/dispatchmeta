@@ -1,4 +1,5 @@
 .emacs.desktop*
+fluentpython/
 REF/
 .polys.bin
 .track_hierarchy.py
