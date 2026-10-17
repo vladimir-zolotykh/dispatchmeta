@@ -13,7 +13,7 @@ def uncompr(zlst: ComprType, out: list[int] = []) -> list[int]:
     car, *rest = zlst
     if isinstance(car, Elt):
         for i in range(car.cnt):
-            out += [car.val]
+            out = out + [car.val]
         return uncompr(rest, out)
     else:
         return uncompr(rest, out + [car])
@@ -21,7 +21,8 @@ def uncompr(zlst: ComprType, out: list[int] = []) -> list[int]:
 
 def test_uncompr():
     assert uncompr([Elt([4, 0])]) == [0, 0, 0, 0]
-    # assert uncompr([Elt([3, 1]), 0, 1, Elt([4, 0]), 1]) == [1, 1, 1, 0, 1, 0, 0, 0, 0, 1]
+    expected = [1, 1, 1, 0, 1, 0, 0, 0, 0, 1]
+    assert uncompr([Elt([3, 1]), 0, 1, Elt([4, 0]), 1]) == expected
 
 
 def test_uncompr2():
